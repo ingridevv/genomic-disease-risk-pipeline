@@ -39,7 +39,7 @@ def read_gwas_chunks(url):
     )
 
 # %%
-def clean_chunk(chunk):
+def preprocess_genomic(chunk):
     """Clean raw GWAS data"""
 
     chunk = chunk.copy()
@@ -62,21 +62,20 @@ def clean_chunk(chunk):
     return chunk
 
 # %%
-def filter_ibd(chunk, keywords):
+def filter_by_phenotype(chunk, keywords):
     """Filter IBD-related diseases"""
     return chunk[
         chunk["DISEASE/TRAIT"].str.contains(keywords, case=False, na=False)
     ]
 
 # %%
-def filter_significant(chunk, threshold):
+def filter_significant_threshold(chunk, threshold):
     """Apply GWAS statistical significance threshold"""
     return chunk[chunk["P-VALUE"] < threshold]
 
 # %%
 def aggregate_results(results):
     """Combine all processed chunks"""
-    import pandas as pd
     return pd.concat(results, ignore_index=True)
 
 # %%
@@ -100,15 +99,15 @@ def main():
     for i, chunk in enumerate(read_gwas_chunks(file_obj)):
         print(f"Processing chunk {i}")
 
-        chunk = clean_chunk(chunk)
+        chunk = preprocess_genomic(chunk)
         if chunk.empty:
             continue
 
-        chunk = filter_ibd(chunk, KEYWORDS_IBD)
+        chunk = filter_by_phenotype(chunk, KEYWORDS_IBD)
         if chunk.empty:
             continue
 
-        chunk = filter_significant(chunk, P_VALUE_THRESHOLD)
+        chunk = filter_significant_threshold(chunk, P_VALUE_THRESHOLD)
         if chunk.empty:
             continue
 

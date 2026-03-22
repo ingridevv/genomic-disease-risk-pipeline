@@ -6,3 +6,8 @@
 # Files
 /notebooks*
 *.ipynb
+*.zip
+*.csv
+*.tsv
+__pycache__/
+.ipynb_checkpoints/
