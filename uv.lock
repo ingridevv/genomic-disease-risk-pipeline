@@ -319,7 +319,9 @@ source = { virtual = "." }
 dependencies = [
     { name = "numpy" },
     { name = "pandas" },
+    { name = "pyarrow" },
     { name = "python-dotenv" },
+    { name = "requests" },
     { name = "snowflake-connector-python" },
     { name = "streamlit" },
 ]
@@ -328,7 +330,9 @@ dependencies = [
 requires-dist = [
     { name = "numpy", specifier = ">=2.4.3" },
     { name = "pandas", specifier = ">=2.3.3" },
+    { name = "pyarrow", specifier = ">=23.0.1" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
+    { name = "requests", specifier = ">=2.32.5" },
     { name = "snowflake-connector-python", specifier = ">=4.3.0" },
     { name = "streamlit", specifier = ">=1.55.0" },
 ]

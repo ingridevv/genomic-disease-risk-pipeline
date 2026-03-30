@@ -4,6 +4,7 @@
 *.csv
 
 # Files
+/data*
 /notebooks*
 *.ipynb
 *.zip
@@ -11,3 +12,9 @@
 *.tsv
 __pycache__/
 .ipynb_checkpoints/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+terraform.tfvars
