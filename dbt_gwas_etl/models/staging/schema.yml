@@ -1,0 +1,62 @@
+version: 2
+
+models:
+  - name: stg_gwas_associations
+    description: "Incremental staging model for GWAS Catalog genomic associations. Cleanses and filters raw FTP data for downstream PRS analysis."
+    config:
+      meta:
+        owner: "Ingrid Silva"
+        data_layer: "Silver / Staging"
+        pii_sensitive: false
+        biotech_domain: "Genomics"
+        quality_check_level: "High"
+
+    columns:
+      - name: variant_id
+        description: "The Reference SNP cluster ID (rsID) from dbSNP database. Primary unique key for genomic variants."
+        tests:
+          - unique
+          - not_null
+
+      - name: chromosome
+        description: "The cytogenetic band or chromosome identifier where the variant is located (e.g., 1-22, X, Y)."
+        tests:
+          - not_null
+
+      - name: base_pair_locus
+        description: "The physical position of the variant on the reference genome (build-specific)."
+        tests:
+          - not_null
+
+      - name: region
+        description: "Cytogenetic region/band (e.g., 6p21.3) associated with the genomic variant."
+
+      - name: disease_trait
+        description: "The phenotype or experimental trait reported in the GWAS study. Used as the primary clustering key."
+        tests:
+          - not_null
+
+      - name: mapped_gene
+        description: "Gene(s) mapped to the variant by the GWAS Catalog curation pipeline."
+
+      - name: reported_genes
+        description: "Gene(s) reported by the original authors of the study (mapped from 'REPORTED_GENE(S)')."
+
+      - name: risk_allele
+        description: "The specific allele associated with the increased risk of the trait (from 'STRONGEST_SNP-RISK_ALLELE')."
+
+      - name: p_value
+        description: "Genome-wide significance value. Filtered to be <= 5e-8 to ensure statistical rigor."
+        tests:
+          - not_null
+
+      - name: odds_ratio
+        description: "The calculated effect size (Odds Ratio or Beta) for the specific allele association."
+
+      - name: risk_allele_freq
+        description: "The frequency of the risk-increasing allele in the study population. Essential for PRS weightings."
+
+      - name: ingestion_date
+        description: "Timestamp indicating when the record was added to the EBI GWAS Catalog. Used for incremental loading."
+        tests:
+          - not_null
