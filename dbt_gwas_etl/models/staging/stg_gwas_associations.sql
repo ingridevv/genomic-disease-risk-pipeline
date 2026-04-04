@@ -8,10 +8,6 @@
 
 with raw_source as (
     select * from {{ source('gwas_catalog', 'GWAS_ASSOCIATIONS_FULL') }}
-
-    {% if is_incremental() %}
-        where DATE_ADDED_TO_CATALOG > (select max(ingestion_date) from {{ this }})
-    {% endif %}
 ),
 
 gwas_associations as (
@@ -45,3 +41,6 @@ gwas_associations as (
 )
 
 select * from gwas_associations
+{% if is_incremental() %}
+    where DATE_ADDED_TO_CATALOG > (select max(ingestion_date) from {{ this }})
+{% endif %}

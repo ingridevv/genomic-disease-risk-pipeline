@@ -24,6 +24,7 @@ risk_score as (
         , chromosome
         , base_pair_locus
         , disease_trait
+        , mapped_gene
         , risk_allele
         , odds_ratio
         , ln(odds_ratio) as beta_weight
