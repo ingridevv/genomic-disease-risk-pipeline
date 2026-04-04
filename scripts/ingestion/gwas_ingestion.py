@@ -1,139 +1,123 @@
-# %%
-import pandas as pd
-import requests
-import csv
+import os
+import io
 import zipfile
+import logging
+import requests
+import pandas as pd
+import snowflake.connector
+from datetime import datetime
+from dotenv import load_dotenv
+from pathlib import Path
+from snowflake.connector.pandas_tools import write_pandas
 
-# %%
-GWAS_URL = "https://www.ebi.ac.uk/gwas/api/search/downloads/associations/v1.0?split=false"
-P_VALUE_THRESHOLD = 5e-8
-KEYWORDS_IBD = "crohn|colitis|inflammatory bowel"
+# --- 1. Logging Configuration ---
+log_dir = Path("logs")
+log_dir.mkdir(exist_ok=True)
+log_file = log_dir / f"gwas_ingestion_{datetime.now().strftime('%Y%m%d')}.log"
 
-# %%
-def download_gwas_file(url, filename="raw_gwas.zip"):
-    """Download GWAS Data directly"""
-    filename = "data/bronze/raw_gwas.zip"
-    print(f"Downloading to {filename}")
-    with requests.get(url, stream=True) as r:
-        r.raise_for_status()
-        with open(filename, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
-    return filename
-
-# %%
-def extract_tsv_from_zip(zip_filepath):
-    """Open the ZIP directly and return the first TSV file found."""
-    z = zipfile.ZipFile(zip_filepath)
-    file_name = z.namelist()[0] 
-    return z.open(file_name)
-
-# %%
-def read_gwas_chunks(url):
-    """Read GWAS data in chunks"""
-    return pd.read_csv(
-        url,
-        sep="\t",
-        encoding="latin1",
-        quoting=csv.QUOTE_NONE,
-        on_bad_lines="skip",
-        engine="python",
-        chunksize=100_000
-    )
-
-# %%
-def preprocess_genomic(chunk):
-    """Clean raw GWAS data"""
-
-    chunk = chunk.copy()
-
-    chunk.columns = (
-        chunk.columns
-        .str.strip()
-        .str.upper()
-        .str.replace(" ", "")
-    )
-
-    required_cols = ["DISEASE/TRAIT", "P-VALUE"]
-    for col in required_cols:
-        if col not in chunk.columns:
-            return pd.DataFrame()
-
-    chunk["P-VALUE"] = pd.to_numeric(chunk["P-VALUE"], errors="coerce")
-    chunk = chunk.dropna(subset=["P-VALUE", "DISEASE/TRAIT"])
-
-    return chunk
-
-# %%
-def filter_by_phenotype(chunk, keywords):
-    """Filter IBD-related diseases"""
-    return chunk[
-        chunk["DISEASE/TRAIT"].str.contains(keywords, case=False, na=False)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - [%(module)s] %(message)s',
+    handlers=[
+        logging.FileHandler(log_file),
+        logging.StreamHandler()
     ]
+)
+logger = logging.getLogger(__name__)
 
-# %%
-def filter_significant_threshold(chunk, threshold):
-    """Apply GWAS statistical significance threshold"""
-    return chunk[chunk["P-VALUE"] < threshold]
-
-# %%
-def aggregate_results(results):
-    """Combine all processed chunks"""
-    return pd.concat(results, ignore_index=True)
-
-# %%
-def top_ibd_genes(df, top_n=10):
-    "Most frequent genes in the filtered dataset"
-    return df['MAPPED_GENE'].value_counts().head(top_n)
-
-# %%
-def save_data(df, filename="gwas_ibd_cleaned.csv"):
-    "Save final results for analysis"
-    df.to_csv(filename, index=False)
-    print(f"Saved as: {filename}")
-
-# %%
-def main():
-    print("Ingestion started...")
-    results_gold = []
-
-    zip_filepath = download_gwas_file(GWAS_URL)
-    file_obj = extract_tsv_from_zip(zip_filepath)
-
-    with zipfile.ZipFile(zip_filepath) as z:
-        file_name = z.namelist()[0]
-        with z.open(file_name) as file_obj:
-            for i, chunk in enumerate(read_gwas_chunks(file_obj)):
-                print(f"Processing chunk {i}")
-                
-                chunk_silver = preprocess_genomic(chunk)
-                if chunk_silver.empty: continue
-
-                chunk_ibd = filter_by_phenotype(chunk_silver, KEYWORDS_IBD)
-                if chunk_ibd.empty: continue
-
-                chunk_gold = filter_significant_threshold(chunk_ibd, P_VALUE_THRESHOLD)
-                if chunk_gold.empty: continue
-
-                results_gold.append(chunk_gold)
-
-    if results_gold:
-        final_df = aggregate_results(results_gold)
- 
-        print("\nTop Genes Encountered:")
-        print(final_df["MAPPED_GENE"].value_counts().head(10))
-
-        output_path = "data/gold/gwas_ibd_cleaned.csv"
-
-        final_df.to_csv(output_path, index=False)
-
-        print(f"\n File saved in gold layer: {output_path}")
-        print(f"Total variants filtered: {len(final_df)}")
-
-        return final_df
-    else:
-        print("No data found with the applied filters")
-        return None
+class GWASDataPipeline:
+    """
+    ETL Pipeline for GWAS Catalog Genomic Associations Ingestion into Snowflake.
+    Following data engineering standards for scalability and auditability.
+    """
     
+    def __init__(self):
+        load_dotenv()
+        self.url = "https://ftp.ebi.ac.uk/pub/databases/gwas/releases/2026/01/20/gwas-catalog-associations_ontology-annotated-full.zip"
+        self.table_name = "GWAS_ASSOCIATIONS_FULL"
+        self.conn = None
+
+    def create_snowflake_connection(self):
+        """Establishes connection to Snowflake using environment variables."""
+        try:
+            self.conn = snowflake.connector.connect(
+                user=os.getenv("SF_USER"),
+                password=os.getenv("SF_PASSWORD"),
+                account=os.getenv("SF_ACCOUNT"),
+                warehouse=os.getenv("SF_WAREHOUSE"),
+                database=os.getenv("SF_DATABASE"),
+                schema=os.getenv("SF_SCHEMA")
+            )
+            logger.info("Successfully established Snowflake connection.")
+        except Exception as e:
+            logger.error(f"Failed to connect to Snowflake: {e}")
+            raise
+
+    def download_and_extract(self):
+        """Fetches the genomic dataset from EBI FTP and extracts TSV content in-memory."""
+        logger.info(f"Initiating download from: {self.url}")
+        try:
+            response = requests.get(self.url, timeout=60)
+            response.raise_for_status()
+            
+            with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+                target_file = z.namelist()[0]
+                logger.info(f"Extracting genomic payload: {target_file}")
+                with z.open(target_file) as f:
+                    # Using '\t' for TSV and low_memory to handle large genomic matrices
+                    return pd.read_csv(f, sep='\t', low_memory=False)
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Network error during download: {e}")
+            raise
+
+    def transform_metadata(self, df):
+        """Normalizes column headers to compliant Snowflake identifiers."""
+        logger.info("Normalizing dataframe schema for Snowflake compliance.")
+        df.columns = [
+            col.upper().replace(' ', '_').replace('.', '_').replace('/', '_') 
+            for col in df.columns
+        ]
+        return df
+
+    def load_to_snowflake(self, df):
+        """Executes bulk loading into Snowflake's Primary Data layer."""
+        if self.conn is None:
+            self.create_snowflake_connection()
+            
+        try:
+            logger.info(f"Streaming {len(df):,} records to Snowflake...")
+            success, nchunks, nrows, _ = write_pandas(
+                conn=self.conn,
+                df=df,
+                table_name=self.table_name,
+                auto_create_table=True,
+                overwrite=True
+            )
+            if success:
+                logger.info(f"Ingestion complete. {nrows:,} rows committed to {self.table_name}.")
+        except Exception as e:
+            logger.error(f"Load failure: {e}")
+            raise
+        finally:
+            if self.conn:
+                self.conn.close()
+                logger.info("Snowflake connection closed.")
+
+    def run(self):
+        """Pipeline Orchestration Logic."""
+        start_time = datetime.now()
+        logger.info("--- GWAS Ingestion Pipeline Started ---")
+        
+        try:
+            raw_data = self.download_and_extract()
+            processed_data = self.transform_metadata(raw_data)
+            self.load_to_snowflake(processed_data)
+            
+            duration = datetime.now() - start_time
+            logger.info(f"--- Pipeline Finished Successfully | Execution Time: {duration} ---")
+        except Exception as e:
+            logger.critical(f"Pipeline crashed. Critical error: {e}")
+
 if __name__ == "__main__":
-    main()
+    pipeline = GWASDataPipeline()
+    pipeline.run()
