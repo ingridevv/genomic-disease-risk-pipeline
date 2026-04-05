@@ -9,7 +9,7 @@
 .log
 
 # Files
-/data*
+/data/
 /notebooks*
 *.ipynb
 *.zip
@@ -33,4 +33,5 @@ profiles.yml
 # --- Python/Project Extras ---
 .DS_Store        
 Thumbs.db        
-.vscode/        
+.vscode/      
+README copy.md  
