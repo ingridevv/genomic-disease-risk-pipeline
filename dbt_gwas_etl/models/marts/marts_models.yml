@@ -24,7 +24,8 @@ models:
         description: "Odds ratio associated with the risk allele. Must be greater than 0."
         tests:
           - dbt_utils.expression_is_true:
-              expression: "> 0"
+              arguments:
+                expression: "> 0"
 
       - name: beta_weight
         description: "Effect size calculated as the natural logarithm of the Odds Ratio (ln(OR))."
@@ -33,13 +34,15 @@ models:
         description: "Statistical significance level of the association."
         tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-              max_value: 1
+              arguments:
+                min_value: 0
+                max_value: 1
 
       - name: chromosome
         tests:
-          - dbt_utils.accepted_values:
-              values: ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','X','Y','MT']
+          - dbt_utils.not_accepted_values:
+              arguments:
+                values: ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','X','Y','MT']
 
       - name: ingestion_date
         description: "The timestamp when the record was processed (used for incremental load control)."

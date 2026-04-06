@@ -7,7 +7,7 @@ with risk_data as (
 ),
 
 gene_info as (
-    select * from {{ ref('genes_metadata') }}
+    select * from {{ source('secondary_data', 'GENES_METADATA') }}
 )
 
 select

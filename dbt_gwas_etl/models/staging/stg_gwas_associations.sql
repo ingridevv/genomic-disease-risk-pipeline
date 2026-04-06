@@ -42,5 +42,5 @@ gwas_associations as (
 
 select * from gwas_associations
 {% if is_incremental() %}
-    where DATE_ADDED_TO_CATALOG > (select max(ingestion_date) from {{ this }})
+    where ingestion_date > (select max(ingestion_date) from {{ this }})
 {% endif %}
