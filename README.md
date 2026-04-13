@@ -3,32 +3,29 @@
 </p>
 
 # HELIOX
-
 **Hereditary Evidence & Loci Integration eXploration**
-
-*Discovering genetic variants and disease risk through precision data engineering*
-
----
-
-🧬 **Challenge**: Manual genomic workflows are slow, error-prone, and don't scale for modern research.
-
-**Solution**: An automated data engineering pipeline that:
-1. Ingests **1.1M+ variants** from the EBI GWAS Catalog
-2. Applies statistical filtering (p ≤ 5e-8) and quality control
-3. Enriches with gene annotations and biological pathways
-4. Loads analysis-ready data into a data warehouse
-5. Visualizes risk scores via an interactive dashboard
-
-**Use Case**: Help researchers quickly discover genetic risk factors for Immune-Mediated Inflammatory Diseases (IBD).
+*Discovering genetic variants and disease risk through data engineering*
 
 ---
 
-## Dataset
+## Project Overview
 
-- **Source**: EBI GWAS Catalog (2026-01-20 release)
-- **Volume**: 1.1M+ genomic variants with p-values, odds ratios, and gene annotations
-- **Format**: TSV in compressed ZIP file
-- **Ingestion**: Batch processing via Python (scheduled daily via Airflow)
+**HELIOX** is a production-grade, automated data engineering framework architected to facilitate the large-scale analysis of genetic susceptibility in **Inflammatory Bowel Disease (IBD)**. By implementing a cloud-native **Medallion Architecture**, the system orchestrates the ingestion and transformation of over **1.1M+ genetic variants**, specifically targeting the molecular overlap and distinct loci between **Crohn’s Disease (CD)** and **Ulcerative Colitis (UC)**.
+
+The framework addresses the computational bottleneck inherent in genomic research by deploying a reproducible pipeline that automates the ingestion of high-dimensional data from the EBI GWAS Catalog. It applies stringent statistical rigor ($p \le 5 \times 10^{-8}$) and cross-references loci with known IBD risk profiles, providing a high-integrity analytical foundation for precision medicine and bioinformatics research.
+
+### Strategic Impact & Clinical Relevance
+* **Multi-Phenotype Orchestration**: Employs containerized DAGs (Airflow + Docker) to categorize variants across the CD and UC spectrums, enabling comparative genomic analysis.
+* **Algorithmic Governance**: Ensures scientific validity through dbt-driven assertions, validating the integrity of odds ratios (OR) and effect sizes across the **Medallion layers**.
+* **Pathophysiological Discovery**: Accelerates the identification of risk loci within the IL-23/Th17 pathway and other IBD-specific biological markers through a high-throughput visualization layer.
+
+---
+
+### Data Landscape & Variant Ingestion
+
+* **Source & Genomic Depth**: Systematic extraction of **1.1M+ variants** from the EBI GWAS Catalog (January 2026), focused on non-synonymous SNPs associated with chronic intestinal inflammation.
+* **Bioinformatics Pipeline**: High-performance processing of compressed VCF/TSV payloads, utilizing modular Python components for efficient memory management during large-scale extraction.
+* **Analytical Scalability**: Implementation of **Clustering Keys** in Snowflake based on genomic coordinates and disease traits, significantly reducing latency for complex queries on IBD-associated loci.
 
 ---
 
@@ -42,7 +39,7 @@
 
 ---
 
-## 🚀 Key Engineering Features
+## Key Engineering Features
 
 | Feature | Technical Implementation |
 | :--- | :--- |
