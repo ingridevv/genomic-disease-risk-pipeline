@@ -346,6 +346,21 @@ After the pipeline runs successfully:
 
 ---
 
+## Final Considerations
+
+The **HELIOX** framework demonstrates that modern Data Engineering principles—such as idempotency, containerization, and automated testing—are fundamental to the scalability of genomic research. By treating biological data with the same rigor as financial or commercial payloads, we reduce the "time-to-insight" for complex pathologies like IBD.
+
+### Future Enhancements:
+* **GCP Ecosystem Integration**: Migrate the storage and compute layer to **Google Cloud Platform**, leveraging **BigQuery** for massive-scale genomic joins and **Cloud Storage** for raw VCF/TSV archival.
+* **Genomics on Google Cloud**: Implement **Cloud Life Sciences API** (or Batch) to automate secondary analysis and variant calling pipelines.
+* **Expansion of Phenotypic Scope**: Integrate additional autoimmune datasets (e.g., Lupus, Rheumatoid Arthritis) to explore pleiotropic genetic effects.
+* **CI/CD Maturity**: Automate dbt documentation deployment and unit testing via GitHub Actions or **Cloud Build**.
+* **Infrastructure Evolution**: Transition from Docker Compose to a managed **Google Kubernetes Engine (GKE)** cluster for high-availability orchestration.
+
+This project serves as a technical foundation for high-throughput bioinformatics, proving that robust infrastructure is the prerequisite for scientific discovery at scale.
+
+---
+
 ## Resources
 
 - [EBI GWAS Catalog](https://www.ebi.ac.uk/gwas/)
