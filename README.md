@@ -3,174 +3,116 @@
 </p>
 
 # HELIOX
-**Hereditary Evidence & Loci Integration eXploration**
+*End-to-end Genomic data pipeline for disease risk analysis*
 
-*Discovering genetic variants and disease risk through data engineering*
+## What This Pipeline Delivers
 
----
-
-## Project Overview
-
-**HELIOX** is a production-grade, automated data engineering framework architected to facilitate the large-scale analysis of genetic susceptibility in **Inflammatory Bowel Disease (IBD)**. By implementing a cloud-native **Medallion Architecture**, the system orchestrates the ingestion and transformation of over **1.1M+ genetic variants**, specifically targeting the molecular overlap and distinct loci between **Crohn’s Disease (CD)** and **Ulcerative Colitis (UC)**.
-
-The framework addresses the computational bottleneck inherent in genomic research by deploying a reproducible pipeline that automates the ingestion of high-dimensional data from the EBI GWAS Catalog. It applies stringent statistical rigor ($p \le 5 \times 10^{-8}$) and cross-references loci with known IBD risk profiles, providing a high-integrity analytical foundation for precision medicine and bioinformatics research.
-
-### Strategic Impact & Clinical Relevance
-* **Multi-Phenotype Orchestration**: Employs containerized DAGs (Airflow + Docker) to categorize variants across the CD and UC spectrums, enabling comparative genomic analysis.
-* **Algorithmic Governance**: Ensures scientific validity through dbt-driven assertions, validating the integrity of odds ratios (OR) and effect sizes across the **Medallion layers**.
-* **Pathophysiological Discovery**: Accelerates the identification of risk loci within the IL-23/Th17 pathway and other IBD-specific biological markers through a high-throughput visualization layer.
-
----
-
-### Data Landscape & Variant Ingestion
-
-* **Source & Genomic Depth**: Systematic extraction of **1.1M+ variants** from the EBI GWAS Catalog (January 2026), focused on non-synonymous SNPs associated with chronic intestinal inflammation.
-* **Bioinformatics Pipeline**: High-performance processing of compressed VCF/TSV payloads, utilizing modular Python components for efficient memory management during large-scale extraction.
-* **Analytical Scalability**: Implementation of **Clustering Keys** in Snowflake based on genomic coordinates and disease traits, significantly reducing latency for complex queries on IBD-associated loci.
-
----
-
-## Architecture & Technologies
-
-* **Cloud & Infrastructure:** Terraform (IaC), Docker & Docker Compose.
-* **Orchestration:** Apache Airflow 2.8.1 (Batch processing).
-* **Data Warehouse:** Snowflake (Medallion Architecture).
-* **Transformation:** dbt (SQL-based modeling).
-* **Visualization:** Streamlit (Interactive dashboarding).
-
----
-
-## Key Engineering Features
-
-| Feature | Technical Implementation |
-| :--- | :--- |
-| **Infrastructure as Code** | **Terraform** — Full cloud resource provisioning and environment reproducibility. |
-| **Containerization** | **Docker** — Isolated environments for ingestion scripts and orchestration services. |
-| **Workflow Orchestration** | **Apache Airflow** — Automated scheduling of Python extraction and dbt workloads. |
-| **Data Warehousing** | **Snowflake** — Implementation of a 3-layer Medallion architecture (Bronze, Silver, Gold). |
-| **Performance Tuning** | **Snowflake Clustering** — Query optimization via clustering keys on `disease_trait` and `rsID`. |
-| **Data Transformation** | **dbt (Data Build Tool)** — Modular SQL modeling with incremental loads and built-in testing. |
-| **BI & Analytics** | **Streamlit** — Custom dashboard for high-throughput genomic data exploration and PRS scoring. |
-
----
-
-## Data Visualization
-
-The final analytical layer is exposed via an interactive **Streamlit** dashboard, allowing researchers to explore the genomic landscape and risk scores in real-time.
+- Processes **1.1M+ GWAS variants** end-to-end
+- Filters statistically significant SNPs (**p ≤ 5e-8**)
+- Produces analysis-ready risk datasets in Snowflake
+- Enables comparison between **Crohn’s Disease** and **Ulcerative Colitis**
+- Fully reproducible pipeline (Docker + Airflow + dbt)
 
 <p align="center">
-  <img src="imgs/dashboard_preview.png" alt="HELIOX Streamlit Dashboard" width="70%">
+  <img src="imgs\gwas_million_variants.png" alt="Snowflake recourd count" width="100%">
 </p>
 
+## Overview
 
-## Quick Start (5 Steps, ~10 Minutes)
+This project implements a data pipeline for processing large-scale genomic data related to **Inflammatory Bowel Disease (IBD)**.
+It ingests over **1.1M genetic variants** from the EBI GWAS Catalog and transforms them into structured, analysis-ready datasets using a Medallion Architecture (Bronze, Silver, Gold).
+The pipeline applies genome-wide significance filtering (p ≤ 5×10⁻⁸) and organizes the data to support comparison between **Crohn’s Disease (CD)** and **Ulcerative Colitis (UC)**.
+The goal is to provide a reproducible and scalable workflow that turns raw genomic data into reliable inputs for downstream analysis.
 
-### Prerequisites
-- ✅ Docker & Docker Compose installed
-- ✅ Snowflake account (trial eligible)
-- ✅ Ports 8080, 5432, 8501 available
 
-### Start the Pipeline
+## Data Architecture
 
-**1. Clone, Configure, & Start Services**
-```bash
-git clone https://github.com/ingridevv/genomic-disease-risk-pipeline.git
-cd genomic-disease-risk-pipeline
-cp .env.example .env
-# Edit .env with your Snowflake credentials
-docker-compose up -d
-```
-✅ **Expected**: Airflow container running (check: `docker ps`)
+<p align="center">
+  <img src="imgs\data_architecture_diagram.png" alt="Containerization airflow and postgres" width="100%">
+</p>
 
-**2. Access Airflow UI** (~30 seconds after startup)
-- URL: http://localhost:8080
-- Username: `admin`  |  Password: `admin`
+## Tech Stack
 
-✅ **Expected**: Airflow dashboard loads with "gwas_genomic_pipeline_v1" DAG visible
+* **Cloud & Infrastructure:** Terraform (IaC)
+* **Containerization**: Docker
+* **Orchestration:** Apache Airflow (Batch processing)
+* **Data Warehouse:** Snowflake
+* **Transformation:** dbt
+* **Visualization:** Streamlit
 
-**3. Trigger the Pipeline**
-- Click on DAG → Click **Trigger DAG** button
-- Monitor: ingest_task → dbt_transformations (2-5 minutes)
+## Design Decisions
 
-✅ **Expected**: Both tasks turn green (success)
+| Decision | Rationale |
+|---------|----------|
+| Batch processing (Airflow) | GWAS data is periodic, not real-time |
+| Snowflake | Optimized for analytical workloads |
+| Medallion architecture | Clear separation of data quality layers |
+| dbt | Modular transformations with testing |
 
-**4. Verify Results in Snowflake**
-```sql
-SELECT COUNT(*) FROM TERTIARY_DATA.FCT_GWAS_RISK_SCORE;
-```
-✅ **Expected**: ~20,000+ rows loaded
+## Data Model
 
-**5. View Dashboard** (Optional)
-```bash
-streamlit run data_viz/app.py
-```
-✅ **Expected**: Dashboard opens at http://localhost:8501
-
----
-
-## How It Works
-
-### Data Flow
-```
-EBI FTP → Python Ingestion → Snowflake (Raw)
-                              ↓
-                         dbt Transform
-                              ↓
-                         Snowflake (Gold)
-                              ↓
-                         Streamlit Dashboard
-```
-
-### Three Layers (Medallion Pattern)
-- **Bronze (PRIMARY_DATA)**: Raw GWAS data (1.1M+ variants)
+### Medallion Architecture
+- **Bronze (PRIMARY_DATA)**: Raw GWAS data (~1.1M+ variants)
 - **Silver (SECONDARY_DATA)**: Cleaned & filtered (significance p ≤ 5e-8)
 - **Gold (TERTIARY_DATA)**: Risk scores, gene annotations, ready for analysis
 
-### Key Models
+### Core Models
 | Model | Purpose |
 |-------|---------|
 | `stg_gwas_associations` | Clean & filter raw GWAS data |
 | `fct_gwas_risk_score` | Calculate risk scores per disease |
-| `dim_gene_context` | Add gene annotations & pathways |
-| `fct_gwas_analysis` | Final analysis-ready view |
+| `dim_gene_context` | Enrich variants with gene annotations |
+| `fct_gwas_analysis` | Final analysis-ready dataset |
 
----
-<details>
-<summary><b>Data Models Deep Dive</b></summary>
 
-### Staging Layer: `stg_gwas_associations`
-**File**: dbt_gwas_etl/models/staging/stg_gwas_associations.sql
+<p align="left">
+  <img src="imgs/gene_context_seed.png" alt="dbt gene context seed" width="45%">
+</p>
 
-- **Materialization**: Incremental view (merge strategy)
-- **Key Transformations**:
-  - Variant ID extraction (rsID/SNP identifiers)
-  - Chromosomal position mapping
-  - Odds ratio → beta weight conversion: `beta = ln(odds_ratio)`
-  - Genome-wide significance filter: `p_value ≤ 5e-8` (standard for GWAS)
-  - Gene mapping for downstream enrichment
-- **Clustering Key**: `disease_trait`, `ingestion_date`
-- **Quality Tests**: Unique variant_id, not-null on critical fields
 
----
-### Data Lineage & Transformation DAG
+## Data Lineage
 
-The following diagram shows how data flows through our dbt transformation models:
+### Transformation Logic
+* Filters genome-wide significant variants (p ≤ 5e-8)
+* Converts odds ratios → beta coefficients (ln(OR))
+* Maps SNPs to genes
+* Enforces data quality via dbt tests
 
 <p align="center">
   <img src="imgs/dbt_lineage.png" alt="dbt Data Lineage" width="100%">
 </p>
 
 **Flow**: `stg_gwas_associations` → `fct_gwas_risk_score` + `dim_gene_context` → `fct_gwas_analysis`
-</details>
----
 
-<details>
-<summary><b> Testing & Quality Assurance</b></summary>
+
+## Reliability & Data Quality
+
+### Data Quality Controls
+- Genome-wide significance enforced (p ≤ 5e-8)
+- Non-null constraints on variant identifiers
+- Valid p-value range (0–1)
+
+### Transformation Logic
+- SNP normalization (rsID extraction)
+- Chromosomal mapping
+- Odds ratio → beta conversion (`ln(OR)`)
+
+### Warehouse Optimization
+- Clustering keys: `disease_trait`, `ingestion_date`
+
+### Pipeline Reliability
+- Idempotent ingestion (safe re-runs)
+- Exception logging with full stack traces
+- Environment-based configuration
+
+## Testing
+
+- **Current Coverage**: 90% (ingestion module) 
+- **Total tests**: 21 tests organized into 7 test classes  
 
 <p align="left">
-  <img src="imgs\pytest_coverage_report.png" alt="Pytests suite implemented." width="100%">
+  <img src="imgs\pytest_coverage_v2.png" alt="Pytests suite implemented." width="80%">
 </p>
-
 
 ### Running Tests
 
@@ -191,57 +133,19 @@ pytest tests/test_gwas_ingestion.py::TestGWASDataPipelineValidation -v
 pytest tests/ -m unit -v
 ```
 
-### Test Coverage
+## Setup & Run
 
-**Current Coverage**: 90% of ingestion module  
-**Test Count**: 21 comprehensive tests organized into 7 test classes  
-**Status**: ✅ All tests passing
+### Prerequisites
+- Docker & Docker Compose installed
+- Snowflake account
+- Ports 8080, 5432, 8501 available
 
-### Test Categories
-
-| Category | Tests | Purpose |
-|----------|-------|---------|
-| **Metadata** | 3 | Column normalization, data integrity |
-| **Validation** | 4 | Data quality, GWAS standards compliance |
-| **Initialization** | 3 | Pipeline setup, environment configuration |
-| **Download** | 2 | EBI FTP connectivity, ZIP extraction |
-| **Load** | 3 | Snowflake connection, data writing, exception logging |
-| **Integration** | 3 | End-to-end pipeline orchestration, error handling |
-| **Data Quality** | 3 | GWAS significance thresholds, volume validation |
-
-### Key Test Assertions
-
-✅ **Genomic Data Quality**:
-- Variant identifiers are never null
-- P-values are within plausible range (0-1)
-- Genome-wide significance threshold enforced (p ≤ 5e-8)
-
-✅ **Pipeline Reliability**:
-- Column normalization for Snowflake compatibility
-- Connection creation and error handling
-- Data volume validation (minimum records)
-- Exception logging with full stack traces (`exc_info=True`)
-
-✅ **Integration Flow**:
-- Download → Transform → Load orchestration
-- Mock Snowflake interactions
-- Environment variable dependency injection
-- Graceful error handling with exit codes
-</details>
----
-
-## Setup & Configuration
-
-> 💡 **Quick Tip**: Save 5 minutes by gathering your Snowflake credentials before starting.
-
-### Step 1: Clone and Setup Environment
+### 1. Clone & Configure
 ```bash
 git clone https://github.com/ingridevv/genomic-disease-risk-pipeline.git
 cd genomic-disease-risk-pipeline
 cp .env.example .env
 ```
-
-### Step 2: Configure Snowflake Credentials
 
 Edit `.env` and add your Snowflake account details:
 
@@ -256,15 +160,8 @@ SF_GOLD_LAYER=TERTIARY_DATA
 SF_ROLE=ACCOUNTADMIN
 ```
 
-### Step 3: Setup dbt Profiles (Optional, for local dbt use)
-If running dbt locally (not via Docker):
-```bash
-cp dbt_gwas_etl/profiles.yml.example dbt_gwas_etl/profiles.yml
-# Edit profiles.yml to use your .env values (via environment variables)
-```
-
-### Step 4: Setup Terraform (Optional, for IaC)
-To provision Snowflake resources automatically:
+### 2. Provision Infrastructure
+If you want automated Snowflake setup: 
 ```bash
 cp terraform/terraform.tfvars.example terraform/terraform.tfvars
 # Edit terraform.tfvars with your Snowflake credentials
@@ -273,23 +170,63 @@ terraform init
 terraform apply
 cd ..
 ```
+> Skip this step if resources already exist.
 
-> **Note**: If you manually created Snowflake resources, skip Step 4. Or let dbt create them on first run.
+### 3. Start Services
+```bash
+docker-compose up -d
+```
+<p align="left">
+  <img src="imgs\dags-success.png" alt="Airflow DAGs tasks" width="70%">
+</p>
 
----
 
-## Reproducibility
+### 4. Run Pipeline
+Access Airflow: 
+```bash
+http://localhost:8080
+```
+- Trigger DAG: gwas_genomic_pipeline_v1
+- Wait for: 
+  - Ingestion
+  - dbt transformations
 
-When cloning a fresh copy, everything is included via:
-- ✅ `.env.example` - Environment variable template
-- ✅ `dbt_gwas_etl/profiles.yml.example` - dbt Snowflake configuration template
-- ✅ `terraform/terraform.tfvars.example` - Terraform variables template
-- ✅ `docker-compose.yaml` - All services pre-configured
-- ✅ All Python, dbt, and Terraform code (no credentials hardcoded)
+<p align="left">
+  <img src="imgs\docker_containers.png" alt="Containerization airflow and postgres" width="70%">
+</p>
 
----
+### 5. Validate Output
+```SQL
+SELECT COUNT(*) 
+FROM TERTIARY_DATA.FCT_GWAS_RISK_SCORE;
+```
 
-## File Reference
+### 6. Launch Dashboard
+```bash
+streamlit run data_viz/app.py
+```
+
+
+## Visualization
+<p align="left">
+  <img src="imgs/dashboard_preview.png" alt="HELIOX Streamlit Dashboard" width="80%">
+</p>
+
+## Trade-Offs & Limitations
+* Batch processing introduces latency (no real-time ingestion)
+* Snowflake cost may scale with large genomic joins
+* Limited to publicly available GWAS datasets
+* No streaming or CDC pipeline (future improvement)
+
+## Future Improvements
+
+* **Expand autoimmune diseases**: Medallion model is disease-agnostic — adding Type 1 Diabetes or Rheumatoid Arthritis requires only a new ingestion config.
+* **Airflow → Pub/Sub + Dataflow**: Streaming becomes relevant if the pipeline expands to real-time variant calling.
+* **Snowflake → BigQuery**: Natural migration path as data volume grows.
+* **CI/CD with GitHub Actions**: Automated dbt schema tests on every PR before Snowflake deployment.
+* **Docker Compose → Kubernetes (GKE)**: Relevant when parallelising ingestion across multiple GWAS studies.
+
+## Project Structure 
 
 | Component | File | What It Does |
 |-----------|------|-------------|
@@ -301,9 +238,7 @@ When cloning a fresh copy, everything is included via:
 | Dashboard | `data_viz/app.py` | Interactive Streamlit app |
 | Config | `.env.example` | Template for credentials |
 | Docker | `docker-compose.yaml` | Service setup (Airflow, Postgres) |
-| Infrastructure | `terraform/` | Snowflake database setup (optional) |
-
----
+| Infrastructure | `terraform/` | Infrastructure provisioning |
 
 ## Common Issues & Solutions
 
@@ -314,61 +249,13 @@ When cloning a fresh copy, everything is included via:
 | **dbt transformation fails** | Check Snowflake role has CREATE TABLE privilege. Or run: `terraform apply` |
 | **No data in Streamlit** | Verify ingest task ran (check Airflow logs). Query tables in Snowflake directly. |
 | **"Warehouse doesn't exist"** | Create manually in Snowflake UI or run Terraform. Update `.env` to match. |
-| **"dbt problems"** | run dbt debug. |
+| **"dbt problems"** | Run dbt debug. |
 
----
 
-## Next Steps
-
-After the pipeline runs successfully:
-
-1. **Explore the data**
-   - Query TERTIARY_DATA schema in Snowflake
-   - Check row counts: `FCT_GWAS_RISK_SCORE`, `DIM_GENE_CONTEXT`
-
-2. **Customize the pipeline**
-   - Add new disease filters in `dbt_gwas_etl/macros/filter_by_disease.sql`
-   - Create new dbt models in `dbt_gwas_etl/models/marts/`
-   - Modify Streamlit dashboard in `data_viz/app.py`
-
-3. **Scale up**
-   - Increase Snowflake warehouse size (GENOMIC_WH)
-   - Adjust dbt threads in `.env` (DBT_THREADS)
-
----
-
-## Contributing
-
-1. Create a feature branch
-2. Make changes
-3. Test dbt models: `dbt test`
-4. Push and submit a pull request
-
----
-
-## Final Considerations
-
-The **HELIOX** framework demonstrates that modern Data Engineering principles—such as idempotency, containerization, and automated testing—are fundamental to the scalability of genomic research. By treating biological data with the same rigor as financial or commercial payloads, we reduce the "time-to-insight" for complex pathologies like IBD.
-
-### Future Enhancements:
-* **GCP Ecosystem Integration**: Migrate the storage and compute layer to **Google Cloud Platform**, leveraging **BigQuery** for massive-scale genomic joins and **Cloud Storage** for raw VCF/TSV archival.
-* **Genomics on Google Cloud**: Implement **Cloud Life Sciences API** (or Batch) to automate secondary analysis and variant calling pipelines.
-* **Expansion of Phenotypic Scope**: Integrate additional autoimmune datasets (e.g., Lupus, Rheumatoid Arthritis) to explore pleiotropic genetic effects.
-* **CI/CD Maturity**: Automate dbt documentation deployment and unit testing via GitHub Actions or **Cloud Build**.
-* **Infrastructure Evolution**: Transition from Docker Compose to a managed **Google Kubernetes Engine (GKE)** cluster for high-availability orchestration.
-
-This project serves as a technical foundation for high-throughput bioinformatics, proving that robust infrastructure is the prerequisite for scientific discovery at scale.
-
----
-
-## Resources
+## Dataset
 
 - [EBI GWAS Catalog](https://www.ebi.ac.uk/gwas/)
-- [Airflow Documentation](https://airflow.apache.org/docs/)
-- [dbt Docs](https://docs.getdbt.com/)
-- [Snowflake SQL](https://docs.snowflake.com/)
-- [Streamlit Guide](https://docs.streamlit.io/)
+
 
 ---
-
-**Project Developed during Data Engineering Zoomcamp 2026**
+**Built for Data Engineering Zoomcamp 2026**
