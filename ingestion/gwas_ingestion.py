@@ -96,7 +96,7 @@ class GWASDataPipeline:
             if success:
                 logger.info(f"Ingestion complete. {nrows:,} rows committed to {self.table_name}.")
         except Exception as e:
-            logger.error(f"Load failure: {e}")
+            logger.error(f"Load failure: {e}", exc_info=True)
             raise
         finally:
             if self.conn:
@@ -116,8 +116,13 @@ class GWASDataPipeline:
             duration = datetime.now() - start_time
             logger.info(f"--- Pipeline Finished Successfully | Execution Time: {duration} ---")
         except Exception as e:
-            logger.critical(f"Pipeline crashed. Critical error: {e}")
+            logger.critical(f"Pipeline crashed. Critical error: {e}", exc_info=True)
+            raise
 
 if __name__ == "__main__":
-    pipeline = GWASDataPipeline()
-    pipeline.run()
+    try:
+        pipeline = GWASDataPipeline()
+        pipeline.run()
+    except Exception as e:
+        logger.critical(f"Fatal error: Pipeline execution failed. {e}", exc_info=True)
+        exit(1)

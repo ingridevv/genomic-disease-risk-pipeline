@@ -1,7 +1,7 @@
 [project]
-name = "genomic-disease-risk-pipeline"
+name = "heliox"
 version = "0.1.0"
-description = "Add your description here"
+description = "HELIOX: Hereditary Evidence & Loci Integration eXploration - End-to-end data engineering pipeline for genomic disease risk discovery"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -14,4 +14,18 @@ dependencies = [
     "requests>=2.32.5",
     "snowflake-connector-python>=4.3.0",
     "streamlit>=1.55.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "pytest-mock>=3.14.0",
+    "black>=24.0.0",
+    "ruff>=0.4.0",
+]
+test = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "pytest-mock>=3.14.0",
 ]

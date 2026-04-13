@@ -16,6 +16,26 @@ from airflow.operators.bash import BashOperator
     }
 )
 def gwas_pipeline():
+    """
+    Genomic Disease Risk Discovery Pipeline.
+    
+    End-to-end data engineering pipeline for processing GWAS (Genome-Wide Association Studies)
+    variants to discover genetic risk factors for Immune-Mediated Inflammatory Diseases (IBD,
+    Crohn's Disease, Ulcerative Colitis).
+    
+    Pipeline Flow:
+        1. ingest_task: Download 1.1M+ variants from EBI GWAS Catalog FTP server
+                       and bulk load into Snowflake PRIMARY_DATA schema
+        2. dbt_transformations: Execute dbt transformations to:
+                               - Stage and filter raw GWAS data (p-value ≤ 5e-8)
+                               - Create disease-specific risk scores
+                               - Enrich variants with gene annotations
+                               - Prepare analysis-ready data in TERTIARY_DATA (gold layer)
+    
+    Task Dependencies: ingest_task >> dbt_transformations
+    
+    Expected Runtime: 2-5 minutes (1-2 min ingestion + 1-3 min transformation)
+    """
 
     @task()
     def ingest_task():

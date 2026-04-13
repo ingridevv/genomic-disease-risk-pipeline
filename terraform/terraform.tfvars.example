@@ -1,0 +1,12 @@
+# Snowflake Terraform Variables Template
+# 
+# INSTRUCTIONS:
+# 1. Copy this file: cp terraform.tfvars.example terraform.tfvars
+# 2. Get your Snowflake account ID from: Admin → Account → Account ID
+# 3. Format: xy12345.us-east-1 (account.region)
+# 4. Fill in your credentials below
+# 5. ⚠️ NEVER commit terraform.tfvars to git (use .env or terraform variables instead)
+
+snowflake_account  = "your_account_id.region"  # e.g., xy12345.us-east-1
+snowflake_user     = "your_snowflake_user"     # e.g., admin
+snowflake_password = "your_snowflake_password" # Use strong password

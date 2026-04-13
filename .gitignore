@@ -8,6 +8,10 @@
 /logs*
 .log
 
+# Tests & Coverage
+.coverage
+htmlcov/
+
 # Files
 /data/
 /notebooks*
