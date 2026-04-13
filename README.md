@@ -169,15 +169,14 @@ cd terraform/
 terraform init
 terraform apply
 cd ..
-```
-> Skip this step if resources already exist.
+``` 
 
 ### 3. Start Services
 ```bash
 docker-compose up -d
 ```
 <p align="left">
-  <img src="imgs\dags-success.png" alt="Airflow DAGs tasks" width="70%">
+  <img src="imgs\docker_containers.png" alt="Airflow DAGs tasks" width="70%">
 </p>
 
 
@@ -192,7 +191,7 @@ http://localhost:8080
   - dbt transformations
 
 <p align="left">
-  <img src="imgs\docker_containers.png" alt="Containerization airflow and postgres" width="70%">
+  <img src="imgs\dags-success.png" alt="Containerization airflow and postgres" width="70%">
 </p>
 
 ### 5. Validate Output
