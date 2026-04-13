@@ -34,35 +34,28 @@
 
 ## Architecture & Technologies
 
-**Cloud & Infrastructure**
-- **Snowflake** — Data warehouse
-- **Terraform** — Infrastructure as Code
-- **Docker & Docker Compose** — Containerization
-
-**Data Pipeline**
-- **Apache Airflow 2.8.1** — Orchestration
-- **Snowflake** — 3-layer medallion architecture (bronze/silver/gold)
-- **dbt** — Data transformations (SQL-based modeling)
-- **Streamlit** — Interactive dashboards
-
-**Pipeline Type**: Batch processing (daily runs)
+* **Cloud & Infrastructure:** Terraform (IaC), Docker & Docker Compose.
+* **Orchestration:** Apache Airflow 2.8.1 (Batch processing).
+* **Data Warehouse:** Snowflake (Medallion Architecture).
+* **Transformation:** dbt (SQL-based modeling).
+* **Visualization:** Streamlit (Interactive dashboarding).
 
 ---
 
-## Key Features
+## 🚀 Key Engineering Features
 
-| Requirement | Implementation |
-|-------------|-----------------|  
-| **Problem** | Discover disease-associated variants at scale |
-| **Cloud & IaC** | Snowflake + Terraform |
-| **Batch Orchestration** | Airflow DAG (ingest → transform) |
-| **Medallion Pattern** | Bronze (raw) → Silver (filtered) → Gold (analytics) |
-| **Warehouse Optimization** | Clustering on disease_trait & ingestion_date |
-| **Transformations** | dbt models with incremental loads & tests |
-| **Dashboard** | Streamlit: risk scores + chromosome landscape |
-| **Reproducibility** | Docker Compose, .env template, Terraform scripts |
+| Feature | Technical Implementation |
+| :--- | :--- |
+| **Infrastructure as Code** | **Terraform** — Full cloud resource provisioning and environment reproducibility. |
+| **Containerization** | **Docker** — Isolated environments for ingestion scripts and orchestration services. |
+| **Workflow Orchestration** | **Apache Airflow** — Automated scheduling of Python extraction and dbt workloads. |
+| **Data Warehousing** | **Snowflake** — Implementation of a 3-layer Medallion architecture (Bronze, Silver, Gold). |
+| **Performance Tuning** | **Snowflake Clustering** — Query optimization via clustering keys on `disease_trait` and `rsID`. |
+| **Data Transformation** | **dbt (Data Build Tool)** — Modular SQL modeling with incremental loads and built-in testing. |
+| **BI & Analytics** | **Streamlit** — Custom dashboard for high-throughput genomic data exploration and PRS scoring. |
 
 ---
+
 ## Data Visualization
 
 The final analytical layer is exposed via an interactive **Streamlit** dashboard, allowing researchers to explore the genomic landscape and risk scores in real-time.
@@ -83,7 +76,7 @@ The final analytical layer is exposed via an interactive **Streamlit** dashboard
 
 **1. Clone, Configure, & Start Services**
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/ingridevv/genomic-disease-risk-pipeline.git
 cd genomic-disease-risk-pipeline
 cp .env.example .env
 # Edit .env with your Snowflake credentials
@@ -245,7 +238,7 @@ pytest tests/ -m unit -v
 
 ### Step 1: Clone and Setup Environment
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/ingridevv/genomic-disease-risk-pipeline.git
 cd genomic-disease-risk-pipeline
 cp .env.example .env
 ```
