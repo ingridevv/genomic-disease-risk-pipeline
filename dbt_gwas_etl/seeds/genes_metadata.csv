@@ -1,0 +1,11 @@
+gene_name,gene_function,is_immune_related,pathway
+NOD2,Intracellular sensor of bacterial peptidoglycan. Key risk factor for Crohn's Disease.,true,Innate Immunity
+IL23R,Component of the IL-23 receptor. Central target for biological therapies (Stelara).,true,Cytokine Signaling
+ATG16L1,Crucial protein for autophagy and cellular homeostasis in intestinal epithelia.,true,Autophagy
+CARD9,Transduces signals from pattern-recognition receptors to activate NF-kB.,true,Innate Immunity
+HLA-DQB1,Major Histocompatibility Complex (MHC) class II molecule involved in antigen presentation.,true,Adaptive Immunity
+ALOX5AP,Encodes a protein required for leukotriene synthesis. Linked to inflammatory response.,true,Lipid Metabolism
+JAK2,Non-receptor tyrosine kinase involved in signaling pathways for cytokine receptors.,true,JAK-STAT Signaling
+STAT3,Transcription factor activated by cytokines. Mediates intestinal inflammation.,true,JAK-STAT Signaling
+TYK2,Signal transducer for multiple interleukins. Common target for new IBD drugs.,true,Cytokine Signaling
+UCAD,Involved in cellular adhesion and maintenance of the intestinal barrier.,false,Cell Adhesion

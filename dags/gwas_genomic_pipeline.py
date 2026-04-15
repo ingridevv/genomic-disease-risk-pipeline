@@ -48,7 +48,12 @@ def gwas_pipeline():
 
     dbt_run = BashOperator(
         task_id='dbt_transformations',
-        bash_command='cd /opt/airflow/dbt_gwas_etl && dbt run --no-partial-parse',
+        bash_command= (
+        'cd /opt/airflow/dbt_gwas_etl && '
+        'dbt deps && '
+        'dbt seed --profiles-dir . && '
+        'dbt run --profiles-dir . --no-partial-parse'
+        ),
         cwd='/opt/airflow/dbt_gwas_etl',
         env={
             **os.environ,

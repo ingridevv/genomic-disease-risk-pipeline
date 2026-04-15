@@ -3,6 +3,7 @@
 
 # Data
 *.csv
+!dbt_gwas_etl/seeds/genes_metadata.csv
 
 # Logs
 /logs*
