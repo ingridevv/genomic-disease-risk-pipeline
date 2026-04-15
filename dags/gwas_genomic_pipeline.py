@@ -10,7 +10,7 @@ from airflow.operators.bash import BashOperator
     catchup=False,
     tags=['genomics', 'snowflake', 'dbt'],
     default_args={
-        'owner': 'Ingrid Silva',
+        'owner': 'Ingrid Germano',
         'retries': 2,
         'retry_delay': timedelta(minutes=5),
     }

@@ -136,6 +136,7 @@ pytest tests/ -m unit -v
 ## Setup & Run
 
 ### Prerequisites
+- Terraform
 - Docker & Docker Compose installed
 - Snowflake account
 - Ports 8080, 5432, 8501 available
@@ -150,7 +151,10 @@ cp .env.example .env
 Edit `.env` and add your Snowflake account details:
 
 ```bash
-SF_ACCOUNT=xy12345.us-east-1      # Account ID from: Snowflake Console → Admin → Account
+# Snowflake Account ID
+# Standard: <account_locator>.<region>.<cloud> (e.g., xy12345.us-east-1)
+# Enterprise/Org: <org_name>-<account_name> (e.g., GVTJKMN-DIP64567)
+SF_ACCOUNT=your-account-identifier
 SF_USER=your_username
 SF_PASSWORD=your_password
 SF_WAREHOUSE=GENOMIC_WH
@@ -171,7 +175,23 @@ terraform apply
 cd ..
 ``` 
 
-### 3. Start Services
+### 3. Airflow Security
+For security and session persistence, Airflow requires a SECRET_KEY.
+- For immediate testing: The provided .env.example already contains a default functional key    (467473746c616e6465726973636f6f6c). You can leave it as is for local evaluation.
+- For custom setup: If you wish to generate your own, run:
+```bash
+python3 -c 'import secrets; print(secrets.token_hex(16))'
+```
+> Then, update the AIRFLOW_SECRET_KEY variable in your .env file.
+
+### 4. dbt Configuration (Profiles)
+```bash
+   cd dbt_gwas_etl/
+   cp profiles.yml.example profiles.yml
+   cd ..
+```
+
+### 5. Start Services
 ```bash
 docker-compose up -d
 ```
@@ -180,12 +200,12 @@ docker-compose up -d
 </p>
 
 
-### 4. Run Pipeline
+### 6. Run Pipeline
 Access Airflow: 
 ```bash
 http://localhost:8080
 ```
-- Trigger DAG: gwas_genomic_pipeline_v1
+- **Trigger DAG**: gwas_genomic_pipeline_v1
 - Wait for: 
   - Ingestion
   - dbt transformations
@@ -194,13 +214,21 @@ http://localhost:8080
   <img src="imgs\dags-success.png" alt="Containerization airflow and postgres" width="70%">
 </p>
 
-### 5. Validate Output
+  > After the command finishes, the Airflow Webserver at localhost:8080 may take 2-5 minutes to become accessible.
+
+**How to monitor**: 
+You can follow the progress by running:
+```bash
+docker logs -f airflow-webserver
+```
+
+### 7. Validate Output
 ```SQL
 SELECT COUNT(*) 
 FROM TERTIARY_DATA.FCT_GWAS_RISK_SCORE;
 ```
 
-### 6. Launch Dashboard
+### 8. Launch Dashboard
 ```bash
 streamlit run data_viz/app.py
 ```

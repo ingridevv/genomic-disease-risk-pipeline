@@ -6,7 +6,7 @@ x-airflow-common:
   environment:
     &airflow-common-env
     PYTHONPATH: "${PYTHONPATH}:/opt/airflow:/opt/airflow/plugins"
-    AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY:-secret_key_padrao}
+    AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY:-467473746c616e6465726973636f6f6c}
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD:-airflow}@postgres:5432/${POSTGRES_DB:-airflow}
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
@@ -48,7 +48,7 @@ services:
   airflow-init:
     <<: *airflow-common
     container_name: airflow_init
-    command: version
+    command: bash -c "cp -n /opt/airflow/dbt_gwas_etl/profiles.yml.example /opt/airflow/dbt_gwas_etl/profiles.yml || true && airflow version"
     environment:
       <<: *airflow-common-env
       _AIRFLOW_DB_UPGRADE: 'true'
