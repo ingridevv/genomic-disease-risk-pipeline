@@ -11,3 +11,9 @@ variable "snowflake_password" {
   type      = string
   sensitive = true
 }
+
+variable "snowflake_role" {
+  type      = string
+  description = "Snowflake role for Terraform operations"
+  default = "ACCOUNTADMIN"
+}
