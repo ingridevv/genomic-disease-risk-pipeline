@@ -1,0 +1,47 @@
+name: dbt-ci
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+
+jobs:
+  dbt-ci:
+    runs-on: ubuntu-latest
+
+    env:
+      SF_ACCOUNT: ${{ secrets.SF_ACCOUNT }}
+      SF_USER: ${{ secrets.SF_USER }}
+      SF_PASSWORD: ${{ secrets.SF_PASSWORD }}
+      SF_DATABASE: ${{ secrets.SF_DATABASE }}
+      SF_WAREHOUSE: ${{ secrets.SF_WAREHOUSE }}
+      SF_SCHEMA: ${{ secrets.SF_SCHEMA }}
+      SF_ROLE: ${{ secrets.SF_ROLE }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dbt
+        run: |
+          pip install dbt-core dbt-snowflake
+
+      - name: Install dependencies
+        run: |
+          cd dbt_gwas_etl
+          dbt deps
+
+      - name: Validate project (parse)
+        run: |
+          cd dbt_gwas_etl
+          dbt parse
+
+      - name: Run dbt models (CI target)
+        run: |
+          cd dbt_gwas_etl
+          dbt run --target dev --select +tag:ci
