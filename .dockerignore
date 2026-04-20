@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+.uv/
+
+# Git
+.git
+
+# Local/dev tooling
+.vscode/
+.idea/
+.DS_Store
+.obsidian/
+
+# Data
+*.db
+*.sqlite
+
+# Logs
+logs/
+*.log
+
+# Optional (safe to exclude)
+.github/

@@ -1,0 +1,12 @@
+sources:
+  - name: gwas_catalog
+    database: GENOMIC_PROJECT
+    schema: PRIMARY_DATA
+    tables:
+      - name: GWAS_ASSOCIATIONS_FULL
+
+  - name: secondary_data   
+    database: GENOMIC_PROJECT
+    schema: SECONDARY_DATA
+    tables:
+      - name: GENES_METADATA

@@ -1,0 +1,26 @@
+# dbt Profiles for Snowflake
+# 
+# INSTRUCTIONS:
+# 1. Copy this file: cp dbt_gwas_etl/profiles.yml.example dbt_gwas_etl/profiles.yml
+# 2. Fill in your Snowflake credentials
+# 3. Use environment variables with {{ env_var('VAR_NAME') }} for sensitive data
+# 4. ⚠️ NEVER commit profiles.yml to git (already in .gitignore)
+
+dbt_gwas_etl:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SF_ACCOUNT') }}"      # e.g., xy12345.us-east-1
+      user: "{{ env_var('SF_USER') }}"            # Snowflake username
+      password: "{{ env_var('SF_PASSWORD') }}"    # Snowflake password
+      role: "{{ env_var('SF_ROLE', 'ACCOUNTADMIN') }}"
+      database: "{{ env_var('SF_DATABASE') }}"
+      warehouse: "{{ env_var('SF_WAREHOUSE') }}"
+      schema: "{{ env_var('SF_SCHEMA') }}"
+      threads: 4
+      client_session_keep_alive: False
+      
+      # Optional: Snowflake-specific settings
+      # query_tag: "dbt_genomics"
+      # connection_timeout: 10

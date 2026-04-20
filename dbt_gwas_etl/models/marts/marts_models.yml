@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: fct_gwas_risk_score
+    description: >
+      Gold layer fact table containing genetic risk scores (Beta Weights) 
+      for Inflammatory Bowel Disease (IBD), specifically Crohn's Disease 
+      and Ulcerative Colitis. Data is sourced from the GWAS Catalog 
+      and filtered for statistically significant associations.
+    config:
+      incremental_strategy: merge
+    columns:
+      - name: variant_id
+        description: "Unique variant identifier (e.g., rsID). Primary key of the model."
+        tests:
+          - unique
+          - not_null
+          - dbt_utils.at_least_one
+
+      - name: disease_trait
+        description: "The clinical condition or phenotype studied (e.g., Crohn's disease)."
+
+      - name: odds_ratio
+        description: "Odds ratio associated with the risk allele. Must be greater than 0."
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "> 0"
+
+      - name: beta_weight
+        description: "Effect size calculated as the natural logarithm of the Odds Ratio (ln(OR))."
+
+      - name: p_value
+        description: "Statistical significance level of the association."
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+
+      - name: chromosome
+        tests:
+          - dbt_utils.not_accepted_values:
+              arguments:
+                values: ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','X','Y','MT']
+
+      - name: ingestion_date
+        description: "The timestamp when the record was processed (used for incremental load control)."
