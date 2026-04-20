@@ -1,13 +1,3 @@
-terraform { 
-  required_version = ">= 1.0"
-  required_providers {
-    snowflake = {
-      source  = "Snowflake-Labs/snowflake"
-      version = "~> 0.89"
-    }
-  }
-}
-
 # Database
 resource "snowflake_database" "db" {
   name = "GENOMIC_PROJECT"
