@@ -2,7 +2,7 @@ name: dbt-ci
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "main", "dev", "refactor/genomic-modular" ]
   pull_request:
 
 jobs:
