@@ -11,7 +11,7 @@
 - Filters statistically significant SNPs (**p ≤ 5e-8**)
 - Produces analysis-ready risk datasets in Snowflake
 - Enables comparison between **Crohn’s Disease** and **Ulcerative Colitis**
-- Fully reproducible pipeline (Docker + Airflow + dbt)
+- Fully reproducible pipeline (Docker + Airflow + dbt + CI/CD)
 
 <p align="center">
   <img src="imgs\gwas_million_variants.png" alt="Snowflake recourd count" width="100%">
@@ -38,6 +38,7 @@ The goal is to provide a reproducible and scalable workflow that turns raw genom
 * **Orchestration:** Apache Airflow (Batch processing)
 * **Data Warehouse:** Snowflake
 * **Transformation:** dbt
+* **CI/CD:** GitHub Actions
 * **Visualization:** Streamlit
 
 ## Design Decisions
@@ -249,8 +250,7 @@ streamlit run data_viz/app.py
 
 * **Expand autoimmune diseases**: Medallion model is disease-agnostic — adding Type 1 Diabetes or Rheumatoid Arthritis requires only a new ingestion config.
 * **Airflow → Pub/Sub + Dataflow**: Streaming becomes relevant if the pipeline expands to real-time variant calling.
-* **Snowflake → BigQuery**: Natural migration path as data volume grows.
-* **CI/CD with GitHub Actions**: Automated dbt schema tests on every PR before Snowflake deployment.
+* **Snowflake → BigQuery**: Natural migration path as data volume grows..
 * **Docker Compose → Kubernetes (GKE)**: Relevant when parallelising ingestion across multiple GWAS studies.
 
 ## Project Structure 
