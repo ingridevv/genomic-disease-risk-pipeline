@@ -31,7 +31,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 # files using the `{{ config(...) }}` macro.
 models:
   dbt_gwas_etl:
-  
+    
     +persist_docs:
       relation: true
       columns: true
@@ -45,3 +45,7 @@ models:
     marts:
       +materialized: table
       +schema: TERTIARY_DATA
+
+seeds:
+  dbt_gwas_etl:
+    +schema: SECONDARY_DATA
