@@ -9,7 +9,7 @@
 
 #  ** For sensitive values, use environment variables (TF_VAR_*) or a secret management system
 # Snowflake Account ID 
-# Standard: <account_locator>.<region>.<cloud> (e.g., xy12345.us-east-1)
+# Standard: <account_locator>.<region> (e.g., xy12345.us-east-1)
 # Enterprise/Org: <org_name>-<account_name> (e.g., GVTJKMN-DIP64567)
 snowflake_account  = "your_account_id.region" 
 snowflake_user     = "your_snowflake_user"     # e.g., admin
