@@ -193,7 +193,7 @@ python3 -c 'import secrets; print(secrets.token_hex(16))'
 
 ### 5. Start Services
 ```bash
-docker-compose up -d
+docker-compose up -d --build
 ```
 <p align="left">
   <img src="imgs\docker_containers.png" alt="Airflow DAGs tasks" width="70%">
