@@ -1,11 +1,10 @@
-version: '3.8'
-
 x-airflow-common:
   &airflow-common
-  image: apache/airflow:2.8.1-python3.11
+  build: .
+  image: heliox-airflow
   environment:
     &airflow-common-env
-    PYTHONPATH: "${PYTHONPATH}:/opt/airflow:/opt/airflow/plugins"
+    PYTHONPATH: "/opt/airflow:/opt/airflow/plugins"
     AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY:-467473746c616e6465726973636f6f6c}
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD:-airflow}@postgres:5432/${POSTGRES_DB:-airflow}
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
