@@ -6,9 +6,12 @@
 # 3. Format: xy12345.us-east-1 (account.region)
 # 4. Fill in your credentials below
 # 5. ⚠️ NEVER commit terraform.tfvars to git (use .env or terraform variables instead)
-#  ** For sensitive values, use environment variables (TF_VAR_*) or a secret management system
 
-snowflake_account  = "your_account_id.region"  # e.g., xy12345.us-east-1
+#  ** For sensitive values, use environment variables (TF_VAR_*) or a secret management system
+# Snowflake Account ID 
+# Standard: <account_locator>.<region>.<cloud> (e.g., xy12345.us-east-1)
+# Enterprise/Org: <org_name>-<account_name> (e.g., GVTJKMN-DIP64567)
+snowflake_account  = "your_account_id.region" 
 snowflake_user     = "your_snowflake_user"     # e.g., admin
 snowflake_password = "your_snowflake_password" # Use strong password
 snowflake_role     = "your_snowflake_role"     # Recommended: ACCOUNTADMIN
