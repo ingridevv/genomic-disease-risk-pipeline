@@ -2,8 +2,12 @@ name: dbt-ci
 
 on:
   push:
-    branches: [ "main", "dev", "refactor/genomic-modular" ]
+    branches:
+      - main
+      - dev
+      - refactor/genomic-modular
   pull_request:
+  workflow_dispatch:
 
 jobs:
   dbt-ci:
@@ -30,6 +34,25 @@ jobs:
       - name: Install dbt
         run: |
           pip install dbt-core dbt-snowflake
+
+      - name: Create dbt profile
+        run: |
+          mkdir -p ~/.dbt
+          cat <<EOF > ~/.dbt/profiles.yml
+          dbt_gwas_etl:
+            target: dev
+            outputs:
+              dev:
+                type: snowflake
+                account: "${SF_ACCOUNT}"
+                user: "${SF_USER}"
+                password: "${SF_PASSWORD}"
+                role: "${SF_ROLE}"
+                database: "${SF_DATABASE}"
+                warehouse: "${SF_WAREHOUSE}"
+                schema: "${SF_SCHEMA}"
+                threads: 4
+          EOF
 
       - name: Install dependencies
         run: |
